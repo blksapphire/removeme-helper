@@ -6,6 +6,8 @@ A privacy-conscious, manual-first workspace for organizing personal-data removal
 
 - Profile wizard for name, email, country/region, and name variants.
 - A practical checklist to organize discovery, removal requests, and follow-up.
+- Searchable starter directory with official-domain opt-out links for several US people-search and marketing-data services.
+- One-click tracking: add a directory entry to the removal checklist without submitting anything.
 - Editable removal-request template with copy-to-clipboard support.
 - Custom checklist items, search, filters, and progress tracking.
 - Optional browser-local persistence. The user must opt in before profile/checklist data is stored in localStorage.
@@ -32,9 +34,9 @@ Create a production build with `npm run build`.
 
 ## Not implemented yet
 
-- Verified, maintained directory of data brokers and official opt-out routes.
+- Live-tested and maintained directory of data brokers and official opt-out routes. Current starter links are clearly marked as needing live review.
 - Scheduled rechecks/reminders and request status history.
 - Server account system, cloud sync, or automated submissions.
 - Formal legal/region-specific request guidance.
 
-These should be added deliberately, with official-source verification and explicit user consent, rather than presenting unverified broker information as authoritative.
+These should be added deliberately, with official-source verification and explicit user consent, rather than presenting unverified broker information as authoritative. The directory currently labels all routes as needing review and includes a visible warning that links have not been individually live-tested for this release.
