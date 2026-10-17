@@ -6,3 +6,37 @@
 @media(max-width:1100px){.sidebar{width:210px}.main-content{margin-left:210px;padding:0 25px 20px}.content-grid{grid-template-columns:minmax(0,1fr)}.right-column{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.profile-panel{grid-row:span 2}.template-card{min-height:230px}}
 @media(max-width:700px){.sidebar{position:static;width:auto;height:auto;padding:14px 16px;border-right:0;border-bottom:1px solid #e9ebe5;display:block}.brand{width:max-content}.workspace-label,.sidebar-bottom,.nav-list{display:none}.main-content{margin:0;padding:0 16px 18px}.topbar{height:54px}.secure-label{font-size:0;gap:0}.secure-label svg{width:17px;height:17px}.welcome-section{padding:28px 0 21px;min-height:auto}.welcome-section h1{font-size:31px}.welcome-copy{font-size:11px;max-width:440px}.welcome-art{width:85px;height:90px;margin:0 -6px 0 0;flex-shrink:0;transform:scale(.72)}.stats-grid{gap:8px}.stat-card{padding:12px 10px}.stat-top{font-size:9px;gap:5px}.stat-icon{width:25px;height:25px}.stat-number{font-size:25px}.stat-number small{font-size:9px}.stat-foot{font-size:8px;line-height:1.5}.setup-banner{align-items:flex-start;flex-wrap:wrap;padding:13px}.setup-banner>div:nth-child(2){flex:1}.setup-banner .button{margin:0 0 0 47px}.content-grid{gap:13px}.panel-header{padding:16px 13px 13px;gap:8px}.panel-header h2{font-size:16px}.panel-header p{max-width:190px;line-height:1.5}.panel-header>.button{padding:9px 8px;white-space:nowrap}.task-toolbar{padding:0 11px 10px;flex-wrap:wrap}.filter-tab{padding:8px 6px;font-size:9px}.search-box{margin-left:auto}.task-row{padding:15px 12px;gap:8px}.task-body p{font-size:9px}.task-body h3{font-size:10px}.task-action{width:27px;height:27px}.panel-footer{padding:11px;font-size:8px}.right-column{grid-template-columns:1fr}.profile-panel{grid-row:auto}.template-card{min-height:0}.footer{flex-direction:column;line-height:1.6}.modal{padding:19px;border-radius:13px}.modal-heading h2{font-size:20px}.modal-backdrop{padding:12px}.template-textarea{height:270px}.toast{right:12px;bottom:12px;left:12px;justify-content:center}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* Data-broker directory */
+.directory-section{margin:18px 0 20px;scroll-margin-top:20px}
+.directory-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 15px}
+.directory-heading h2{font:800 24px/1.2 var(--display);letter-spacing:-.8px;color:#26342e;margin:7px 0}
+.directory-heading p{font-size:11px;color:#7f8b82;line-height:1.6;margin:0}
+.directory-count{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:9px;font-weight:700;color:#477a60;background:#e9f3eb;border-radius:7px;padding:8px 10px}
+.directory-notice{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;border:1px solid #f0e2c9;background:#fff9ee;border-radius:10px;color:#8c6c3d;margin-bottom:14px}
+.directory-notice svg{flex-shrink:0;margin-top:1px}
+.directory-notice p{font-size:10px;line-height:1.65;margin:0}
+.directory-toolbar{display:flex;gap:9px;align-items:center;margin-bottom:13px}
+.directory-search{flex:1;max-width:360px;min-width:150px;padding:9px 10px}
+.directory-search input{width:100%}
+.directory-toolbar select{max-width:210px;min-width:0;border:1px solid #e5e9e2;border-radius:7px;padding:9px 10px;background:#fff;color:#627066;font-size:10px}
+.broker-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.broker-card{background:#fff;border:1px solid #e8ece5;border-radius:11px;padding:15px;min-width:0;display:flex;flex-direction:column}
+.broker-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.broker-letter{width:33px;height:33px;display:grid;place-items:center;border-radius:10px;background:#e8f2e9;color:#39785c;font:800 15px var(--display)}
+.broker-status{display:flex;align-items:center;gap:5px;background:#fff5e5;color:#9a733d;border-radius:5px;padding:5px 6px;font-size:8px;font-weight:700;white-space:nowrap}
+.broker-status span{width:5px;height:5px;border-radius:50%;background:#d7a258}
+.broker-card h3{font:750 14px var(--display);letter-spacing:-.2px;color:#2d3a33;margin:13px 0 9px}
+.broker-tags{display:flex;flex-wrap:wrap;gap:5px}
+.broker-tags span{font-size:8px;line-height:1.4;padding:4px 6px;border-radius:5px;background:#f5f7f3;color:#78857b}
+.broker-instructions{font-size:10px;line-height:1.7;color:#6f7c72;margin:12px 0}
+.broker-info{padding:10px;background:#f7f9f5;border-radius:7px;margin-top:auto}
+.broker-info strong{font-size:9px;color:#536458}
+.broker-info p{font-size:9px;line-height:1.6;color:#818c82;margin:4px 0 0}
+.broker-actions{display:flex;gap:7px;margin-top:12px}
+.broker-actions .button{flex:1;padding:9px 7px;font-size:9px;white-space:nowrap}
+.broker-source{font-size:8px;line-height:1.5;color:#9aa39a;border-top:1px solid #eef1eb;padding-top:9px;margin-top:12px}
+.directory-footnote{font-size:9px;line-height:1.6;color:#8b968d;margin-top:12px}
+@media(max-width:1200px){.broker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.directory-heading{align-items:flex-start;flex-direction:column;gap:10px}.directory-heading h2{font-size:22px}.directory-toolbar{flex-wrap:wrap}.directory-search{max-width:none;flex-basis:100%}.directory-toolbar select{flex:1;width:calc(50% - 5px);max-width:none}.broker-grid{grid-template-columns:1fr}.broker-card{padding:14px}.directory-notice{padding:11px}.directory-notice p{font-size:9px}}
