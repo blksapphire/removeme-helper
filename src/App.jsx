@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import BrokerDirectory from './components/BrokerDirectory.jsx';
 import {
   ArrowDownRight, ArrowRight, Check, CheckCircle2, ChevronDown, CircleHelp,
   Clipboard, Clock3, ExternalLink, FileText, Fingerprint, Globe2, LockKeyhole,
@@ -84,6 +85,24 @@ function App() {
     notify('Checklist item added.');
   }
 
+  function addBrokerTask(broker) {
+    if (tasks.some((task) => task.brokerId === broker.id)) {
+      notify('This company is already on your checklist.');
+      return;
+    }
+    setTasks((current) => [{
+      id: crypto.randomUUID(),
+      brokerId: broker.id,
+      name: `Review opt-out: ${broker.name}`,
+      category: 'Broker opt-out',
+      description: `${broker.instructions} Before sharing any information, verify the official page and current requirements.`,
+      priority: 'High',
+      status: 'todo',
+      url: broker.optOutUrl
+    }, ...current]);
+    notify(`${broker.name} added to your checklist.`);
+  }
+
   function clearWorkspace() {
     if (!window.confirm('Delete your saved profile and checklist from this browser? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
@@ -131,6 +150,7 @@ Thank you.`;
         <nav className="nav-list" aria-label="Main navigation">
           <a className="nav-item active" href="#overview"><span className="nav-icon"><ShieldCheck size={18} /></span>Overview</a>
           <a className="nav-item" href="#checklist"><span className="nav-icon"><Clipboard size={18} /></span>Removal checklist <span className="nav-count">{tasks.length}</span></a>
+          <a className="nav-item" href="#directory"><span className="nav-icon"><Globe2 size={18} /></span>Broker directory</a>
           <button className="nav-item" onClick={() => setShowTemplate(true)}><span className="nav-icon"><Mail size={18} /></span>Request templates</button>
         </nav>
         <div className="sidebar-bottom">
@@ -169,6 +189,8 @@ Thank you.`;
           <div className="stat-card"><div className="stat-top"><span>To-do items</span><span className="stat-icon peach"><Clock3 size={17} /></span></div><div className="stat-number">{tasks.length - doneCount}<small> left</small></div><div className="stat-foot"><span className="inline-dot" /> Your next step is ready</div></div>
           <div className="stat-card"><div className="stat-top"><span>Requests sent</span><span className="stat-icon lilac"><Mail size={17} /></span></div><div className="stat-number">{tasks.filter(t => t.category === 'Send request' && t.status === 'done').length}<small> tracked</small></div><div className="stat-foot">Mark tasks complete as you go</div></div>
         </section>
+
+        <BrokerDirectory onAddToChecklist={addBrokerTask} notify={notify} />
 
         {!consented && (
           <section className="setup-banner">
