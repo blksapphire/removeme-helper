@@ -42,3 +42,29 @@ Create a production build with `npm run build`.
 - Formal legal/region-specific request guidance.
 
 These should be added deliberately, with official-source verification and explicit user consent, rather than presenting unverified broker information as authoritative. The directory currently labels all routes as needing review and includes a visible warning that links have not been individually live-tested for this release.
+
+
+## Self-operated removal service (first integration)
+
+The application includes a server-side LiveRamp connector. It can submit opt-out or eligible-state deletion requests through LiveRamp's documented Privacy API and refresh provider status. This is separate from the starter directory: other directory entries remain manual until their request flows have been verified and integrated.
+
+### Run locally
+
+1. Install Node.js 22 or newer.
+2. Copy `.env.example` to `.env`.
+3. Generate an encryption key with `openssl rand -hex 32` and set `DATA_ENCRYPTION_KEY` in `.env`.
+4. Set `LIVERAMP_API_TOKEN` and `LIVERAMP_ORG_ID` only after obtaining legitimate API access. Set `LIVERAMP_AGENT_AUTHORIZED=true` only after confirming the organization and authorized-agent workflow are approved for this use.
+5. Run `npm install`, then `npm run dev:api` in one terminal and `npm run dev` in another.
+
+Vite proxies `/api` to port 8787. For production, `docker compose up --build -d` runs the built app and API on port 8787 with persistent SQLite storage.
+
+### Service boundaries
+
+- LiveRamp's official documentation says its Privacy API is available only to U.S. customers. Use it only after the organization has obtained legitimate API access from LiveRamp. See the [official API overview](https://developers.liveramp.com/privacy-api/reference/about-the-privacy-api).
+- An API acknowledgement means **submitted**, not **removed**. The UI reports provider status and does not claim independent removal verification.
+- LiveRamp is disabled unless the API token, organization ID, encryption key, and explicit agent-authorization configuration are present.
+- **Not ready for public deployment:** the request-creation endpoint does not yet require an authenticated RemoveMe Helper account. Keep the API private and `LIVERAMP_AGENT_AUTHORIZED=false` until account authentication, per-request authority checks, rate limiting/abuse controls, and a legal/contractual review are in place.
+- The app sends name and email directly to LiveRamp for the requested action. Our database does not store those fields; it stores the provider reference, status events, and an encrypted authorization receipt.
+- The authorization checkbox and typed signature are versioned and timestamped. Review the consent wording, applicable privacy rules, LiveRamp API access terms, and authorized-agent obligations before enabling this integration for public users.
+- Other directory entries are not automatically submitted yet. A site is not labelled automated until its connector has been implemented and tested against the current official process.
+- Never bypass CAPTCHA, identity verification, or provider access controls.
