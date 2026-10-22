@@ -1,5 +1,7 @@
-const US_STATES_WITH_COMPREHENSIVE_PRIVACY_LAWS = new Set([
-  'AL','CA','CO','CT','DE','IN','IA','KY','LA','MD','MN','MT','NE','NH','NJ','OK','OR','RI','TN','TX','UT','VA'
+const VALID_US_STATE_CODES = new Set([
+  'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME',
+  'MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI',
+  'SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'
 ]);
 
 export function normaliseFullName(fullName) {
@@ -15,9 +17,10 @@ export function validateLiveRampInput(input) {
   if (input.country !== 'United States') throw new Error('This LiveRamp integration currently supports US-resident requests only.');
   if (!['OPT_OUT','DELETION'].includes(input.requestType)) throw new Error('Choose a supported request type.');
   const state = String(input.state || '').trim().toUpperCase();
-  if (input.requestType === 'DELETION' && !US_STATES_WITH_COMPREHENSIVE_PRIVACY_LAWS.has(state)) {
-    throw new Error('LiveRamp deletion requests are limited to eligible US states. Choose Opt out if that better matches your intent.');
+  if (input.requestType === 'DELETION' && !VALID_US_STATE_CODES.has(state)) {
+    throw new Error('Choose a valid US state for a deletion request. State selection does not determine legal eligibility.');
   }
+  if (state && !VALID_US_STATE_CODES.has(state)) throw new Error('Choose a valid US state abbreviation.');
   const signature = String(input.signature || '').trim();
   const normalisedName = String(input.fullName || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
   const normalisedSignature = signature.replace(/\s+/g, ' ').toLocaleLowerCase();
@@ -36,7 +39,7 @@ export function mapLiveRampStatus(status) {
     COMPLETED: 'completed',
     FAILED: 'failed'
   };
-  return mapped[value] || 'submitted';
+  return mapped[value] || 'unknown';
 }
 
 export function extractLiveRampRequest(payload) {
@@ -88,5 +91,5 @@ export async function getLiveRampRequest({ token, orgId, uuid, fetchImpl = fetch
   const body = await parseResponse(response);
   if (!response.ok) throw new LiveRampApiError(response.status, 'provider_status_unavailable');
   const request = extractLiveRampRequest(body);
-  return { ...request, status: mapLiveRampStatus(request.status || 'ACCEPTED') };
+  return { ...request, status: mapLiveRampStatus(request.status) };
 }
