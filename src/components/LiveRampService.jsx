@@ -3,11 +3,17 @@ import { AlertCircle, CheckCircle2, Clock3, Copy, ExternalLink, LockKeyhole, Ref
 
 const SESSION_KEY = 'removeme-liveramp-case-v1';
 const STATES = [
-  ['AL','Alabama'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],
-  ['IN','Indiana'],['IA','Iowa'],['KY','Kentucky'],['LA','Louisiana'],['MD','Maryland'],
-  ['MN','Minnesota'],['MT','Montana'],['NE','Nebraska'],['NH','New Hampshire'],['NJ','New Jersey'],
-  ['OK','Oklahoma'],['OR','Oregon'],['RI','Rhode Island'],['TN','Tennessee'],['TX','Texas'],
-  ['UT','Utah'],['VA','Virginia']
+  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+  ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','District of Columbia'],
+  ['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],
+  ['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],
+  ['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],
+  ['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],
+  ['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],
+  ['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],
+  ['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],
+  ['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],
+  ['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
 ];
 
 const statusLabels = {
@@ -163,7 +169,7 @@ export default function LiveRampService({ profile, notify }) {
 
       <div className="service-provider-note">
         <span className="service-provider-brand">LR</span>
-        <div><strong>LiveRamp</strong><p>Its official API supports opt-out and deletion requests. Opt-out is available to US consumers; deletion eligibility depends on state law.</p></div>
+        <div><strong>LiveRamp</strong><p>Its official API supports opt-out and deletion requests. This API is available only to approved U.S. LiveRamp customers. Consumer rights and deletion eligibility depend on applicable law.</p></div>
         <a href="https://developers.liveramp.com/privacy-api/reference/create-privacyrequests-1" target="_blank" rel="noreferrer">API docs <ExternalLink size={12} /></a>
       </div>
 
@@ -214,7 +220,7 @@ export default function LiveRampService({ profile, notify }) {
           <span className="service-privacy-note"><LockKeyhole size={13} /> Name and email are not stored in our case database.</span>
           <button className="button button-dark" type="submit" disabled={!canSubmit}>{busy ? 'Submitting…' : 'Authorize & submit request'} <ExternalLink size={14} /></button>
         </div>
-        {!eligibleByForm && <p className="service-eligibility-note">This LiveRamp connector currently accepts US-resident requests only. Choose “Opt out” or select an eligible US state for a deletion request.</p>}
+        {!eligibleByForm && <p className="service-eligibility-note">This LiveRamp connector currently accepts U.S.-resident requests only. A state is required for deletion requests, but choosing one does not guarantee legal eligibility or removal.</p>}
       </form>
 
       {caseInfo && savedCase && (
