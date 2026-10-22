@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, "feat/**"]
+    branches: [main, "feat/**", "feature/**"]
 
 jobs:
   validate:
@@ -15,8 +15,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Install dependencies
+          node-version: 22
+          cache: npm
+      - name: Install web dependencies
         run: npm install
       - name: Build web app
         run: npm run build
+      - name: Install service dependencies
+        run: npm install --prefix service
+      - name: Test service
+        run: npm test --prefix service

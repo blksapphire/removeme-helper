@@ -1,44 +1,41 @@
 # RemoveMe Helper
 
-A privacy-conscious, manual-first workspace for organizing personal-data removal efforts.
+A privacy-conscious app for finding personal-data listings and managing removal requests. The existing React/Vite interface remains manual-first; a self-hosted service prototype is being developed for supported provider workflows.
 
-## Current MVP
+## Current web MVP
 
-- Profile wizard for name, email, country/region, and name variants.
-- A practical checklist to organize discovery, removal requests, and follow-up.
-- Searchable starter directory with official-domain opt-out links for several US people-search and marketing-data services.
-- One-click tracking: add a directory entry to the removal checklist without submitting anything.
-- Editable removal-request template with copy-to-clipboard support.
-- Custom checklist items, search, filters, and progress tracking.
-- Per-task request tracking with statuses (Not started, In progress, Submitted, Awaiting response, Removed, Rejected, Unable to verify), submission date, follow-up date, confirmation/reference details, and outcome notes.
-- Request tracking remains local to the browser and never submits requests or sends reminders automatically.
-- Optional browser-local persistence. The user must opt in before profile/checklist data is stored in localStorage.
-- Clear-workspace action to remove locally saved application data.
+- Profile setup and editable removal-request templates.
+- Searchable starter directory of people-search and marketing-data providers.
+- Checklist, progress tracking, request statuses, follow-up dates, and notes.
+- Opt-in localStorage persistence. The existing browser UI does not yet send profile data to a backend.
 - Responsive dashboard for desktop and mobile.
 
-## Run locally
+## Run the web app
 
-```bash
-npm install
-npm run dev
-```
+    npm install
+    npm run dev
 
-Create a production build with `npm run build`.
+Build with npm run build.
 
-## Privacy and safety boundaries
+## Self-hosted service prototype
 
-- The app does not automatically search data brokers, submit opt-out requests, or contact third parties.
-- Profile details and generated template text are processed in the browser.
-- The app stores data in localStorage only after the user opts in. Anyone with access to the same browser profile may be able to access local browser storage.
-- The starter search link opens Google; a search provider may receive normal request metadata and search terms the user enters there.
-- Do not upload identity documents or sensitive information to a broker until the recipient and official process have been verified.
-- This is an organizer and template helper, not legal advice. Removal rights and verification requirements vary by country and service.
+The service folder contains a Node API, encrypted SQLite request store, and an experimental browser-assisted Spokeo opt-out flow. The API is not connected to the React UI yet. Only Spokeo is enabled for experimental submission; other providers remain manual-assisted until their current workflows and verification steps have been tested.
+
+See service/README.md for setup. The backend must not be deployed publicly in its current form: it has a shared development token, not customer accounts or per-user authorization.
+
+## Privacy and safety
+
+- The current web app processes profile/template details in the browser and saves to localStorage only after opt-in.
+- The prototype encrypts request payloads at rest, requires consent plus a separate explicit run action, and omits personal details from API status responses.
+- The Spokeo adapter has not been live-smoke-tested. Email confirmation remains the user's step; submission does not mean removal.
+- The service does not bypass CAPTCHA, phone verification, government identity checks, or other human steps.
+- Coverage and legal rights vary by provider and jurisdiction. No removal is guaranteed.
 
 ## Not implemented yet
 
-- Live-tested and maintained directory of data brokers and official opt-out routes. Current starter links are clearly marked as needing live review.
-- Scheduled reminders/notifications and a full audit trail of status changes.
-- Server account system, cloud sync, or automated submissions.
-- Formal legal/region-specific request guidance.
+- Frontend integration with the API.
+- Real user accounts and row-level authorization for public access.
+- Live end-to-end adapter verification, scheduled monitoring, reminders, and source rechecks.
+- Fully verified provider directory, retention/deletion policy, production queue/database, monitoring, and security review.
 
-These should be added deliberately, with official-source verification and explicit user consent, rather than presenting unverified broker information as authoritative. The directory currently labels all routes as needing review and includes a visible warning that links have not been individually live-tested for this release.
+Finish these before selling or publicly exposing the service.
