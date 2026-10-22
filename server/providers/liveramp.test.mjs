@@ -18,8 +18,10 @@ test('blocks non-US requests', () => {
   assert.throws(() => validateLiveRampInput({ fullName:'Ada Lovelace', email:'ada@example.com', country:'Nigeria', requestType:'OPT_OUT', signature:'Ada Lovelace' }), /US-resident/);
 });
 
-test('blocks deletion requests from unsupported states', () => {
-  assert.throws(() => validateLiveRampInput({ fullName:'Ada Lovelace', email:'ada@example.com', country:'United States', requestType:'DELETION', state:'NY', signature:'Ada Lovelace' }), /eligible US states/);
+test('accepts valid US states for deletion while leaving legal eligibility to the provider and user', () => {
+  const result = validateLiveRampInput({ fullName:'Ada Lovelace', email:'ada@example.com', country:'United States', requestType:'DELETION', state:'NY', signature:'Ada Lovelace' });
+  assert.equal(result.payload.state, 'NY');
+  assert.throws(() => validateLiveRampInput({ fullName:'Ada Lovelace', email:'ada@example.com', country:'United States', requestType:'DELETION', state:'ZZ', signature:'Ada Lovelace' }), /valid US state/);
 });
 
 test('requires typed signature to match the submitted name', () => {
@@ -31,6 +33,7 @@ test('maps provider status into product status', () => {
   assert.equal(mapLiveRampStatus('PROCESSING'), 'processing');
   assert.equal(mapLiveRampStatus('COMPLETED'), 'completed');
   assert.equal(mapLiveRampStatus('FAILED'), 'failed');
+  assert.equal(mapLiveRampStatus('FUTURE_STATUS'), 'unknown');
 });
 
 test('extracts request IDs from response envelopes', () => {
