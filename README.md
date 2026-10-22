@@ -10,6 +10,8 @@ A privacy-conscious, manual-first workspace for organizing personal-data removal
 - One-click tracking: add a directory entry to the removal checklist without submitting anything.
 - Editable removal-request template with copy-to-clipboard support.
 - Custom checklist items, search, filters, and progress tracking.
+- Per-task request tracking with statuses (Not started, In progress, Submitted, Awaiting response, Removed, Rejected, Unable to verify), submission date, follow-up date, confirmation/reference details, and outcome notes.
+- Request tracking remains local to the browser and never submits requests or sends reminders automatically.
 - Optional browser-local persistence. The user must opt in before profile/checklist data is stored in localStorage.
 - Clear-workspace action to remove locally saved application data.
 - Responsive dashboard for desktop and mobile.
@@ -35,7 +37,7 @@ Create a production build with `npm run build`.
 ## Not implemented yet
 
 - Live-tested and maintained directory of data brokers and official opt-out routes. Current starter links are clearly marked as needing live review.
-- Scheduled rechecks/reminders and request status history.
+- Scheduled reminders/notifications and a full audit trail of status changes.
 - Server account system, cloud sync, or automated submissions.
 - Formal legal/region-specific request guidance.
 
