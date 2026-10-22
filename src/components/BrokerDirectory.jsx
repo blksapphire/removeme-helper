@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowRight, ExternalLink, Globe2, Plus, Search, ShieldAlert } from 'lucide-react';
 import { brokerDirectory, directoryNotice } from '../data/brokers.js';
 
