@@ -40,3 +40,20 @@
 .directory-footnote{font-size:9px;line-height:1.6;color:#8b968d;margin-top:12px}
 @media(max-width:1200px){.broker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.directory-heading{align-items:flex-start;flex-direction:column;gap:10px}.directory-heading h2{font-size:22px}.directory-toolbar{flex-wrap:wrap}.directory-search{max-width:none;flex-basis:100%}.directory-toolbar select{flex:1;width:calc(50% - 5px);max-width:none}.broker-grid{grid-template-columns:1fr}.broker-card{padding:14px}.directory-notice{padding:11px}.directory-notice p{font-size:9px}}
+
+/* Manual request tracking */
+.request-status-line{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:9px}
+.request-status-line>span:not(.request-status){font-size:9px;color:#7f8b82}
+.request-status{display:inline-flex;align-items:center;width:max-content;max-width:100%;padding:5px 7px;border-radius:6px;font-size:9px;font-weight:750;line-height:1.3;background:#f0f2ee;color:#647166}
+.status-in-progress{background:#eaf1ff;color:#4568a6}
+.status-submitted{background:#f1eaff;color:#7558a6}
+.status-awaiting-response{background:#fff2dd;color:#966a25}
+.status-removed{background:#e4f4e9;color:#2f7b50}
+.status-rejected{background:#ffebe8;color:#a94c43}
+.status-unable-to-verify{background:#f1f0ee;color:#766e64}
+.track-request-button{display:inline-flex;align-items:center;gap:5px;width:max-content;margin-top:9px;padding:6px 8px;border:1px solid #e3e8e0;border-radius:6px;background:#fff;color:#52715e;font-size:9px;font-weight:700;cursor:pointer}
+.track-request-button:hover{background:#f3f7f1;border-color:#cddbcf}
+.tracking-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tracking-fields label{min-width:0}
+.form-stack textarea{width:100%;resize:vertical;border:1px solid #e2e7df;border-radius:8px;padding:11px;background:#fff;color:#39473d;font:inherit;font-size:12px}
+@media(max-width:480px){.tracking-fields{grid-template-columns:1fr}}
