@@ -219,7 +219,7 @@ Thank you.`;
         <section className="stats-grid" aria-label="Progress summary">
           <div className="stat-card"><div className="stat-top"><span>Checklist progress</span><span className="stat-icon mint"><CheckCircle2 size={17} /></span></div><div className="stat-number">{progress}<small>%</small></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div><div className="stat-foot">{doneCount} of {tasks.length} tasks completed</div></div>
           <div className="stat-card"><div className="stat-top"><span>To-do items</span><span className="stat-icon peach"><Clock3 size={17} /></span></div><div className="stat-number">{tasks.length - doneCount}<small> left</small></div><div className="stat-foot"><span className="inline-dot" /> Your next step is ready</div></div>
-          <div className="stat-card"><div className="stat-top"><span>Requests sent</span><span className="stat-icon lilac"><Mail size={17} /></span></div><div className="stat-number">{tasks.filter(t => t.category === 'Send request' && t.status === 'done').length}<small> tracked</small></div><div className="stat-foot">Mark tasks complete as you go</div></div>
+          <div className="stat-card"><div className="stat-top"><span>Requests tracked</span><span className="stat-icon lilac"><Mail size={17} /></span></div><div className="stat-number">{tasks.filter(t => ['Submitted', 'Awaiting response', 'Removed', 'Rejected'].includes(t.requestStatus)).length}<small> active / resolved</small></div><div className="stat-foot">Based on your manually recorded status</div></div>
         </section>
 
         <BrokerDirectory onAddToChecklist={addBrokerTask} notify={notify} />
