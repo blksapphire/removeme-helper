@@ -3,7 +3,7 @@ const US_STATES_WITH_COMPREHENSIVE_PRIVACY_LAWS = new Set([
 ]);
 
 export function normaliseFullName(fullName) {
-  const parts = String(fullName || '').trim().split(/\\s+/).filter(Boolean);
+  const parts = String(fullName || '').trim().split(/\s+/).filter(Boolean);
   if (parts.length < 2) throw new Error('Enter your first and last name as shown on your records.');
   return { first_name: parts[0], last_name: parts.slice(1).join(' ') };
 }
@@ -11,7 +11,7 @@ export function normaliseFullName(fullName) {
 export function validateLiveRampInput(input) {
   const name = normaliseFullName(input.fullName);
   const email = String(input.email || '').trim().toLowerCase();
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) throw new Error('Enter a valid email address.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email address.');
   if (input.country !== 'United States') throw new Error('This LiveRamp integration currently supports US-resident requests only.');
   if (!['OPT_OUT','DELETION'].includes(input.requestType)) throw new Error('Choose a supported request type.');
   const state = String(input.state || '').trim().toUpperCase();
@@ -19,8 +19,8 @@ export function validateLiveRampInput(input) {
     throw new Error('LiveRamp deletion requests are limited to eligible US states. Choose Opt out if that better matches your intent.');
   }
   const signature = String(input.signature || '').trim();
-  const normalisedName = String(input.fullName || '').trim().replace(/\\s+/g, ' ').toLocaleLowerCase();
-  const normalisedSignature = signature.replace(/\\s+/g, ' ').toLocaleLowerCase();
+  const normalisedName = String(input.fullName || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+  const normalisedSignature = signature.replace(/\s+/g, ' ').toLocaleLowerCase();
   if (!signature || normalisedSignature !== normalisedName) throw new Error('Your typed signature must match your full legal name.');
   return {
     payload: { email, ...name, request_type: input.requestType, ...(state ? { state } : {}) },
@@ -30,7 +30,13 @@ export function validateLiveRampInput(input) {
 
 export function mapLiveRampStatus(status) {
   const value = String(status || '').toUpperCase();
-  return ({ ACCEPTED: 'submitted', PROCESSING: 'processing', COMPLETED: 'completed', FAILED: 'failed' })[value] || 'submitted';
+  const mapped = {
+    ACCEPTED: 'submitted',
+    PROCESSING: 'processing',
+    COMPLETED: 'completed',
+    FAILED: 'failed'
+  };
+  return mapped[value] || 'submitted';
 }
 
 export function extractLiveRampRequest(payload) {
@@ -61,7 +67,7 @@ export class LiveRampApiError extends Error {
 export async function createLiveRampRequest({ token, orgId, payload, fetchImpl = fetch }) {
   const response = await fetchImpl('https://privacy-api.liveramp.com/v1/requests', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'LR-Org-ID': orgId, 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { Authorization: 'Bearer ' + token, 'LR-Org-ID': orgId, 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(15000)
   });
@@ -76,7 +82,7 @@ export async function getLiveRampRequest({ token, orgId, uuid, fetchImpl = fetch
   url.searchParams.set('uuid', uuid);
   const response = await fetchImpl(url, {
     method: 'GET',
-    headers: { Authorization: `Bearer ${token}`, 'LR-Org-ID': orgId, Accept: 'application/json' },
+    headers: { Authorization: 'Bearer ' + token, 'LR-Org-ID': orgId, Accept: 'application/json' },
     signal: AbortSignal.timeout(12000)
   });
   const body = await parseResponse(response);
