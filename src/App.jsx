@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import BrokerDirectory from './components/BrokerDirectory.jsx';
+import LiveRampService from './components/LiveRampService.jsx';
 import {
   ArrowDownRight, ArrowRight, Check, CheckCircle2, ChevronDown, CircleHelp,
   Clipboard, Clock3, ExternalLink, FileText, Fingerprint, Globe2, LockKeyhole,
@@ -189,7 +190,7 @@ Thank you.`;
           <div className="privacy-card">
             <span className="privacy-icon"><LockKeyhole size={17} /></span>
             <strong>Your data stays yours.</strong>
-            <p>Your profile and checklist stay in this browser. Nothing is submitted automatically.</p>
+            <p>Your profile stays in this browser. Supported requests are sent only after you authorize them.</p>
             <span className="privacy-status"><span /> LOCAL-FIRST STORAGE</span>
           </div>
           <button className="settings-link" onClick={clearWorkspace}><Trash2 size={16} /> Clear local workspace</button>
@@ -207,7 +208,7 @@ Thank you.`;
           <div>
             <div className="eyebrow"><Sparkles size={14} /> YOUR PRIVACY, IN YOUR HANDS</div>
             <h1>Take back your <em>privacy.</em></h1>
-            <p className="welcome-copy">A calmer way to find personal-data listings, prepare opt-out requests, and keep track of what happens next.</p>
+            <p className="welcome-copy">Find personal-data listings, submit supported requests through our service, and track what happens next.</p>
           </div>
           <div className="welcome-art" aria-hidden="true">
             <div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" />
@@ -221,6 +222,8 @@ Thank you.`;
           <div className="stat-card"><div className="stat-top"><span>To-do items</span><span className="stat-icon peach"><Clock3 size={17} /></span></div><div className="stat-number">{tasks.length - doneCount}<small> left</small></div><div className="stat-foot"><span className="inline-dot" /> Your next step is ready</div></div>
           <div className="stat-card"><div className="stat-top"><span>Requests tracked</span><span className="stat-icon lilac"><Mail size={17} /></span></div><div className="stat-number">{tasks.filter(t => ['Submitted', 'Awaiting response', 'Removed', 'Rejected'].includes(t.requestStatus)).length}<small> active / resolved</small></div><div className="stat-foot">Based on your manually recorded status</div></div>
         </section>
+
+        <LiveRampService profile={profile} notify={notify} />
 
         <BrokerDirectory onAddToChecklist={addBrokerTask} notify={notify} />
 
@@ -273,7 +276,7 @@ Thank you.`;
             <section className="tip-card"><span className="tip-icon"><Globe2 size={17} /></span><div><strong>Quick privacy tip</strong><p>Before sending documents, verify the website and read its privacy policy. Avoid sharing government IDs unless the official process truly requires it.</p></div></section>
           </div>
         </section>
-        <footer className="footer"><span>RemoveMe Helper <span className="footer-dot">·</span> A privacy-first organizer</span><span>Manual-first by design <span className="footer-dot">·</span> You choose what to share</span></footer>
+        <footer className="footer"><span>RemoveMe Helper <span className="footer-dot">·</span> A privacy-first organizer</span><span>Each request requires your authorization <span className="footer-dot">·</span> You choose what to share</span></footer>
       </main>
 
       {showSetup && <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setShowSetup(false); }}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="setup-title">
@@ -292,7 +295,7 @@ Thank you.`;
 
       {showTemplate && <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setShowTemplate(false); }}><section className="modal template-modal" role="dialog" aria-modal="true" aria-labelledby="template-title">
         <div className="modal-heading"><div><div className="panel-kicker">EDIT BEFORE YOU SEND</div><h2 id="template-title">Personal-data removal request</h2><p>A starting point only. Adapt it to the website’s official process.</p></div><button className="icon-button" onClick={() => setShowTemplate(false)} aria-label="Close"><X size={18} /></button></div>
-        <div className="template-warning"><ShieldCheck size={17} /><span>We do not contact data brokers or submit forms automatically. Verify the recipient before sharing personal details.</span></div>
+        <div className="template-warning"><ShieldCheck size={17} /><span>This template is manual. Supported integrations submit only after you explicitly authorize a request.</span></div>
         <textarea className="template-textarea" readOnly value={template} onFocus={e => e.target.select()} />
         <div className="modal-actions"><button className="button button-outline" onClick={() => setShowTemplate(false)}>Close</button><button className="button button-dark" onClick={copyTemplate}><Clipboard size={15} /> Copy template</button></div>
       </section></div>}

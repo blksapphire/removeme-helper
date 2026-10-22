@@ -147,3 +147,13 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# RemoveMe Helper service data and secrets
+.env
+.env.*
+!.env.example
+/data/
+/server/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
