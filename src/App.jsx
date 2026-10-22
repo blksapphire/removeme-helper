@@ -38,6 +38,9 @@ function App() {
   const [toast, setToast] = useState('');
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [newTaskName, setNewTaskName] = useState('');
+  const [trackingTaskId, setTrackingTaskId] = useState(null);
+  const [trackingForm, setTrackingForm] = useState({ requestStatus: 'Not started', submittedDate: '', confirmation: '', followUpDate: '', outcomeNotes: '' });
+  const requestStatuses = ['Not started', 'In progress', 'Submitted', 'Awaiting response', 'Removed', 'Rejected', 'Unable to verify'];
 
   useEffect(() => {
     if (!consented) {
@@ -70,6 +73,30 @@ function App() {
     notify('Your workspace is saved on this device.');
   }
 
+  function openRequestTracker(task) {
+    setTrackingTaskId(task.id);
+    setTrackingForm({
+      requestStatus: task.requestStatus || 'Not started',
+      submittedDate: task.submittedDate || '',
+      confirmation: task.confirmation || '',
+      followUpDate: task.followUpDate || '',
+      outcomeNotes: task.outcomeNotes || ''
+    });
+  }
+
+  function saveRequestTracking(event) {
+    event.preventDefault();
+    setTasks(current => current.map(task => task.id === trackingTaskId ? {
+      ...task,
+      ...trackingForm,
+      submittedDate: trackingForm.submittedDate || '',
+      followUpDate: trackingForm.followUpDate || '',
+      status: trackingForm.requestStatus === 'Removed' ? 'done' : task.status
+    } : task));
+    setTrackingTaskId(null);
+    notify('Request tracking details saved on this device.');
+  }
+
   function toggleTask(id) {
     setTasks((current) => current.map((task) => task.id === id
       ? { ...task, status: task.status === 'done' ? 'todo' : 'done', completedAt: task.status === 'done' ? null : new Date().toISOString() }
@@ -98,6 +125,11 @@ function App() {
       description: `${broker.instructions} Before sharing any information, verify the official page and current requirements.`,
       priority: 'High',
       status: 'todo',
+      requestStatus: 'Not started',
+      submittedDate: '',
+      confirmation: '',
+      followUpDate: '',
+      outcomeNotes: '',
       url: broker.optOutUrl
     }, ...current]);
     notify(`${broker.name} added to your checklist.`);
@@ -213,7 +245,7 @@ Thank you.`;
             <div className="task-list">
               {visibleTasks.map((task, index) => <article className={task.status === 'done' ? 'task-row completed' : 'task-row'} key={task.id}>
                 <button className="task-check" onClick={() => toggleTask(task.id)} aria-label={task.status === 'done' ? 'Mark as incomplete' : 'Mark as complete'}>{task.status === 'done' && <Check size={15} />}</button>
-                <div className="task-body"><div className="task-title-line"><h3>{task.name}</h3>{task.priority === 'Start here' && <span className="priority-pill">START HERE</span>}</div><p>{task.description}</p><div className="task-meta"><span>{task.category}</span>{task.status === 'done' && <span className="completed-label"><CheckCircle2 size={12} /> Completed</span>}</div></div>
+                <div className="task-body"><div className="task-title-line"><h3>{task.name}</h3>{task.priority === 'Start here' && <span className="priority-pill">START HERE</span>}</div><p>{task.description}</p><div className="task-meta"><span>{task.category}</span>{task.status === 'done' && <span className="completed-label"><CheckCircle2 size={12} /> Completed</span>}</div>{(task.brokerId || task.requestStatus) && <div className="request-status-line"><span className={`request-status status-${(task.requestStatus || 'Not started').toLowerCase().replaceAll(' ', '-')}`}>{task.requestStatus || 'Not started'}</span>{task.submittedDate && <span>Submitted {task.submittedDate}</span>}{task.followUpDate && <span>Follow-up {task.followUpDate}</span>}</div>}<button className="track-request-button" onClick={() => openRequestTracker(task)}><Clipboard size={13} /> Track request</button></div>
                 {task.url ? <a className="task-action" href={task.url} target="_blank" rel="noreferrer" aria-label={`Open resource for ${task.name}`}><ExternalLink size={16} /></a> : <button className="task-action" onClick={() => { setShowTemplate(true); }} aria-label="Open request template"><ArrowDownRight size={17} /></button>}
               </article>)}
               {visibleTasks.length === 0 && <div className="empty-state"><Search size={20} /><strong>No tasks found</strong><span>Try another search or filter.</span></div>}
@@ -255,6 +287,8 @@ Thank you.`;
           <div className="modal-actions"><button type="button" className="button button-outline" onClick={() => setShowSetup(false)}>Cancel</button><button className="button button-dark" type="submit">Save profile <ArrowRight size={15} /></button></div>
         </form>
       </section></div>}
+
+      {trackingTaskId && <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setTrackingTaskId(null); }}><section className="modal small-modal" role="dialog" aria-modal="true" aria-labelledby="tracking-title"><div className="modal-heading"><div><div className="panel-kicker">REQUEST LOG</div><h2 id="tracking-title">Track removal request</h2><p>Record what you did and what the company told you. Nothing is sent automatically.</p></div><button className="icon-button" onClick={() => setTrackingTaskId(null)} aria-label="Close"><X size={18} /></button></div><form className="form-stack" onSubmit={saveRequestTracking}><label>Request status<select value={trackingForm.requestStatus} onChange={e => setTrackingForm({...trackingForm, requestStatus:e.target.value})}>{requestStatuses.map(status => <option key={status}>{status}</option>)}</select></label><div className="tracking-fields"><label>Date submitted<input type="date" value={trackingForm.submittedDate} onChange={e => setTrackingForm({...trackingForm, submittedDate:e.target.value})} /></label><label>Follow-up date<input type="date" value={trackingForm.followUpDate} onChange={e => setTrackingForm({...trackingForm, followUpDate:e.target.value})} /></label></div><label>Confirmation / reference details <span className="optional">OPTIONAL</span><input value={trackingForm.confirmation} onChange={e => setTrackingForm({...trackingForm, confirmation:e.target.value})} placeholder="e.g. confirmation email received" /></label><label>Outcome notes <span className="optional">OPTIONAL</span><textarea value={trackingForm.outcomeNotes} onChange={e => setTrackingForm({...trackingForm, outcomeNotes:e.target.value})} placeholder="What did the site say? Avoid storing passwords or identity numbers." rows={3} /></label><div className="modal-actions"><button type="button" className="button button-outline" onClick={() => setTrackingTaskId(null)}>Cancel</button><button type="submit" className="button button-dark"><Check size={15} /> Save tracking</button></div></form></section></div>}
 
       {showTemplate && <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setShowTemplate(false); }}><section className="modal template-modal" role="dialog" aria-modal="true" aria-labelledby="template-title">
         <div className="modal-heading"><div><div className="panel-kicker">EDIT BEFORE YOU SEND</div><h2 id="template-title">Personal-data removal request</h2><p>A starting point only. Adapt it to the website’s official process.</p></div><button className="icon-button" onClick={() => setShowTemplate(false)} aria-label="Close"><X size={18} /></button></div>
