@@ -253,7 +253,8 @@ app.get('/api/removal-cases/:id', async (req, res) => {
   if (record.provider === 'liveramp' && record.provider_uuid && integrationEnabled()) {
     try {
       const remote = await getLiveRampRequest({
-        token: process.env.LIVERAMP_API_TOKEN,
+        accountId: process.env.LIVERAMP_ACCOUNT_ID,
+        secretKey: process.env.LIVERAMP_SECRET_KEY,
         orgId: process.env.LIVERAMP_ORG_ID,
         uuid: record.provider_uuid
       });
