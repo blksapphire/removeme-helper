@@ -69,8 +69,8 @@ export class LiveRampApiError extends Error {
   }
 }
 
-export async function createLiveRampRequest({ token, accountId, secretKey, orgId, payload, fetchImpl = fetch }) {
-  const accessToken = token || await getLiveRampAccessToken({ accountId, secretKey, fetchImpl });
+export async function createLiveRampRequest({ accountId, secretKey, orgId, payload, fetchImpl = fetch }) {
+  const accessToken = await getLiveRampAccessToken({ accountId, secretKey, fetchImpl });
   const response = await fetchImpl('https://privacy-api.liveramp.com/v1/requests', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + accessToken, 'LR-Org-ID': orgId, 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -83,8 +83,8 @@ export async function createLiveRampRequest({ token, accountId, secretKey, orgId
   return { ...extracted, duplicate: response.status === 200, status: mapLiveRampStatus(extracted.status || 'ACCEPTED') };
 }
 
-export async function getLiveRampRequest({ token, accountId, secretKey, orgId, uuid, fetchImpl = fetch }) {
-  const accessToken = token || await getLiveRampAccessToken({ accountId, secretKey, fetchImpl });
+export async function getLiveRampRequest({ accountId, secretKey, orgId, uuid, fetchImpl = fetch }) {
+  const accessToken = await getLiveRampAccessToken({ accountId, secretKey, fetchImpl });
   const url = new URL('https://privacy-api.liveramp.com/v1/requests');
   url.searchParams.set('uuid', uuid);
   const response = await fetchImpl(url, {
