@@ -38,7 +38,7 @@ Create a production build with `npm run build`.
 
 - Live-tested and maintained directory of data brokers and official opt-out routes. Current starter links are clearly marked as needing live review.
 - Scheduled reminders/notifications and a full audit trail of status changes.
-- Server account system, cloud sync, or automated submissions.
+- Email verification, password recovery, account deletion, and cloud sync.
 - Formal legal/region-specific request guidance.
 
 These should be added deliberately, with official-source verification and explicit user consent, rather than presenting unverified broker information as authoritative. The directory currently labels all routes as needing review and includes a visible warning that links have not been individually live-tested for this release.
