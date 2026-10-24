@@ -53,7 +53,7 @@ The application includes a server-side LiveRamp connector. It can submit opt-out
 1. Install Node.js 22 or newer.
 2. Copy `.env.example` to `.env`.
 3. Generate an encryption key with `openssl rand -hex 32` and set `DATA_ENCRYPTION_KEY` in `.env`.
-4. Set `LIVERAMP_API_TOKEN` and `LIVERAMP_ORG_ID` only after obtaining legitimate API access. Set `LIVERAMP_AGENT_AUTHORIZED=true` only after confirming the organization and authorized-agent workflow are approved for this use.
+4. Set `LIVERAMP_ACCOUNT_ID`, `LIVERAMP_SECRET_KEY`, and `LIVERAMP_ORG_ID` only after obtaining legitimate API access. The server obtains and refreshes short-lived access tokens automatically; never put account credentials in frontend variables. Set `LIVERAMP_AGENT_AUTHORIZED=true` only after confirming the organization and authorized-agent workflow are approved for this use.
 5. Run `npm install`, then `npm run dev:api` in one terminal and `npm run dev` in another.
 
 Vite proxies `/api` to port 8787. For production, `docker compose up --build -d` runs the built app and API on port 8787 with persistent SQLite storage.
