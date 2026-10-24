@@ -290,7 +290,7 @@ export default function LiveRampService({ profile, notify }) {
           <button className="button button-dark" type="submit" disabled={!canSubmit}>{busy ? 'Submitting…' : 'Authorize & submit request'} <ExternalLink size={14} /></button>
         </div>
         {!eligibleByForm && <p className="service-eligibility-note">This LiveRamp connector currently accepts U.S.-resident requests only. A state is required for deletion requests, but choosing one does not guarantee legal eligibility or removal.</p>}
-      </form>
+      </form>}
 
       {caseInfo && savedCase && (
         <div className="service-case">
