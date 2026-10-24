@@ -1,3 +1,5 @@
+import { getLiveRampAccessToken } from './liveramp-auth.mjs';
+
 const VALID_US_STATE_CODES = new Set([
   'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME',
   'MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI',
@@ -67,10 +69,11 @@ export class LiveRampApiError extends Error {
   }
 }
 
-export async function createLiveRampRequest({ token, orgId, payload, fetchImpl = fetch }) {
+export async function createLiveRampRequest({ token, accountId, secretKey, orgId, payload, fetchImpl = fetch }) {
+  const accessToken = token || await getLiveRampAccessToken({ accountId, secretKey, fetchImpl });
   const response = await fetchImpl('https://privacy-api.liveramp.com/v1/requests', {
     method: 'POST',
-    headers: { Authorization: 'Bearer ' + token, 'LR-Org-ID': orgId, 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { Authorization: 'Bearer ' + accessToken, 'LR-Org-ID': orgId, 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(15000)
   });
@@ -80,12 +83,13 @@ export async function createLiveRampRequest({ token, orgId, payload, fetchImpl =
   return { ...extracted, duplicate: response.status === 200, status: mapLiveRampStatus(extracted.status || 'ACCEPTED') };
 }
 
-export async function getLiveRampRequest({ token, orgId, uuid, fetchImpl = fetch }) {
+export async function getLiveRampRequest({ token, accountId, secretKey, orgId, uuid, fetchImpl = fetch }) {
+  const accessToken = token || await getLiveRampAccessToken({ accountId, secretKey, fetchImpl });
   const url = new URL('https://privacy-api.liveramp.com/v1/requests');
   url.searchParams.set('uuid', uuid);
   const response = await fetchImpl(url, {
     method: 'GET',
-    headers: { Authorization: 'Bearer ' + token, 'LR-Org-ID': orgId, Accept: 'application/json' },
+    headers: { Authorization: 'Bearer ' + accessToken, 'LR-Org-ID': orgId, Accept: 'application/json' },
     signal: AbortSignal.timeout(12000)
   });
   const body = await parseResponse(response);
