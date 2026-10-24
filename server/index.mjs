@@ -76,8 +76,9 @@ db.exec(
   'id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE COLLATE NOCASE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL);' +
   'CREATE TABLE IF NOT EXISTS sessions (' +
   'token_hash TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, created_at TEXT NOT NULL, expires_at TEXT NOT NULL);' +
-  'CREATE INDEX IF NOT EXISTS sessions_account_id_idx ON sessions(account_id);' +\n  'DELETE FROM sessions WHERE expires_at <= ' + \"'\" + new Date().toISOString() + \"'\";
+  'CREATE INDEX IF NOT EXISTS sessions_account_id_idx ON sessions(account_id);'
 );
+db.prepare('DELETE FROM sessions WHERE expires_at <= ?').run(new Date().toISOString());
 
 
 const SESSION_COOKIE = 'rmh_session';
@@ -222,7 +223,7 @@ app.get('/api/service-status', (_req, res) => {
 app.post('/api/auth/register', rateLimitAuth, async (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const password = String(req.body?.password || '');
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || email.length > 254) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
     return res.status(400).json({ message: 'Enter a valid email address.' });
   }
   if (password.length < 12 || password.length > 256) {
