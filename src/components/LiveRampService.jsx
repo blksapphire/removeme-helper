@@ -198,7 +198,7 @@ export default function LiveRampService({ profile, notify }) {
                 <option value="">Choose state</option>
                 {STATES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
               </select>
-              <small>Deletion is only enabled for states listed in LiveRamp's current privacy guidance.</small>
+              <small>The state is included in the provider request; choosing one does not establish legal eligibility.</small>
             </label>
           )}
           <label>Type your full name to sign
