@@ -259,7 +259,7 @@ app.get('/api/removal-cases/:id', async (req, res) => {
         uuid: record.provider_uuid
       });
       const now = new Date().toISOString();
-      const nextStatus = remote.status || record.status;
+      const nextStatus = remote.status && remote.status !== 'unknown' ? remote.status : record.status;
       if (nextStatus !== record.status) {
         addEvent(record.id, nextStatus, 'LiveRamp status changed to ' + nextStatus, now);
       }
