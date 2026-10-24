@@ -18,6 +18,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Check server syntax
+        run: node --check server/index.mjs
       - name: Test service logic
         run: npm test
       - name: Build web app

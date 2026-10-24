@@ -71,6 +71,72 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: '16kb', strict: true }));
 
+
+db.exec(
+  'CREATE TABLE IF NOT EXISTS accounts (' +
+  'id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE COLLATE NOCASE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL);' +
+  'CREATE TABLE IF NOT EXISTS sessions (' +
+  'token_hash TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, created_at TEXT NOT NULL, expires_at TEXT NOT NULL);' +
+  'CREATE INDEX IF NOT EXISTS sessions_account_id_idx ON sessions(account_id);'
+);
+db.prepare('DELETE FROM sessions WHERE expires_at <= ?').run(new Date().toISOString());
+
+const SESSION_COOKIE = 'rmh_session';
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const authAttempts = new Map();
+function rateLimitAuth(req, res, next) {
+  const now = Date.now(), key = (req.ip || 'unknown') + ':' + req.path;
+  let entry = authAttempts.get(key);
+  if (!entry || now - entry.start > 15 * 60_000) { entry = { start: now, count: 0 }; authAttempts.set(key, entry); }
+  entry.count += 1;
+  if (entry.count > 10) return res.status(429).json({ message: 'Too many authentication attempts. Try again in 15 minutes.' });
+  if (authAttempts.size > 5000) for (const [k, value] of authAttempts) if (now - value.start > 30 * 60_000) authAttempts.delete(k);
+  next();
+}
+function cookieValue(req, name) {
+  const header = req.get('cookie') || '';
+  for (const part of header.split(';')) { const index = part.indexOf('='); if (index > 0 && part.slice(0, index).trim() === name) return decodeURIComponent(part.slice(index + 1).trim()); }
+  return null;
+}
+function setSessionCookie(res, token) {
+  const secure = isProduction ? '; Secure' : '';
+  res.setHeader('Set-Cookie', SESSION_COOKIE + '=' + encodeURIComponent(token) + '; Path=/; HttpOnly; SameSite=Strict; Max-Age=' + Math.floor(SESSION_TTL_MS / 1000) + secure);
+}
+function clearSessionCookie(res) {
+  res.setHeader('Set-Cookie', SESSION_COOKIE + '=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0' + (isProduction ? '; Secure' : ''));
+}
+function getSession(req) {
+  const token = cookieValue(req, SESSION_COOKIE);
+  if (!token || !/^[A-Za-z0-9_-]{40,}$/.test(token)) return null;
+  const session = db.prepare('SELECT accounts.id, accounts.email, sessions.token_hash FROM sessions JOIN accounts ON accounts.id = sessions.account_id WHERE sessions.token_hash = ? AND sessions.expires_at > ?')
+    .get(hashAccessToken(token), new Date().toISOString());
+  return session ? { id: session.id, email: session.email, tokenHash: session.token_hash } : null;
+}
+function requireSession(req, res, next) {
+  const session = getSession(req);
+  if (!session) return res.status(401).json({ message: 'Sign in to submit a removal request.' });
+  req.account = session; next();
+}
+async function hashPassword(password, salt = crypto.randomBytes(16)) {
+  const key = await new Promise((resolve, reject) => crypto.scrypt(password, salt, 64, { N: 16384, r: 8, p: 1 }, (err, derived) => err ? reject(err) : resolve(derived)));
+  return 'scrypt$' + salt.toString('base64url') + '$' + key.toString('base64url');
+}
+async function verifyPassword(password, encoded) {
+  const parts = String(encoded || '').split('$');
+  if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
+  try {
+    const salt = Buffer.from(parts[1], 'base64url'), expected = Buffer.from(parts[2], 'base64url');
+    if (salt.length !== 16 || expected.length !== 64) return false;
+    const actual = await new Promise((resolve, reject) => crypto.scrypt(password, salt, 64, { N: 16384, r: 8, p: 1 }, (err, derived) => err ? reject(err) : resolve(derived)));
+    return crypto.timingSafeEqual(actual, expected);
+  } catch { return false; }
+}
+function createSession(accountId, res) {
+  const token = createAccessToken(), createdAt = new Date(), expiresAt = new Date(createdAt.getTime() + SESSION_TTL_MS).toISOString();
+  db.prepare('INSERT INTO sessions(token_hash, account_id, created_at, expires_at) VALUES (?, ?, ?, ?)').run(hashAccessToken(token), accountId, createdAt.toISOString(), expiresAt);
+  setSessionCookie(res, token);
+}
+
 const createAttempts = new Map();
 function rateLimitCreate(req, res, next) {
   const now = Date.now();
@@ -154,7 +220,41 @@ app.get('/api/service-status', (_req, res) => {
   });
 });
 
-app.post('/api/liveramp/requests', rateLimitCreate, async (req, res) => {
+
+app.post('/api/auth/register', rateLimitAuth, async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const password = String(req.body?.password || '');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return res.status(400).json({ message: 'Enter a valid email address.' });
+  if (password.length < 12 || password.length > 256) return res.status(400).json({ message: 'Use a password between 12 and 256 characters.' });
+  try {
+    const accountId = crypto.randomUUID(), passwordHash = await hashPassword(password);
+    db.prepare('INSERT INTO accounts(id, email, password_hash, created_at) VALUES (?, ?, ?, ?)').run(accountId, email, passwordHash, new Date().toISOString());
+    createSession(accountId, res);
+    return res.status(201).json({ authenticated: true, email });
+  } catch (error) {
+    if (String(error?.code || '').includes('CONSTRAINT')) return res.status(409).json({ message: 'An account with this email already exists.' });
+    return res.status(500).json({ message: 'Could not create the account.' });
+  }
+});
+app.post('/api/auth/login', rateLimitAuth, async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase(), password = String(req.body?.password || '');
+  const account = db.prepare('SELECT id, email, password_hash FROM accounts WHERE email = ?').get(email);
+  if (!account || !(await verifyPassword(password, account.password_hash))) return res.status(401).json({ message: 'Email or password is incorrect.' });
+  createSession(account.id, res);
+  return res.json({ authenticated: true, email: account.email });
+});
+app.get('/api/auth/me', (req, res) => {
+  const session = getSession(req);
+  if (!session) return res.status(401).json({ authenticated: false });
+  return res.json({ authenticated: true, email: session.email });
+});
+app.post('/api/auth/logout', (req, res) => {
+  const token = cookieValue(req, SESSION_COOKIE);
+  if (token) db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(hashAccessToken(token));
+  clearSessionCookie(res);
+  return res.json({ authenticated: false });
+});
+app.post('/api/liveramp/requests', rateLimitCreate, requireSession, async (req, res) => {
   if (!integrationEnabled()) {
     return res.status(503).json({ message: 'LiveRamp submission is disabled. The server owner must configure approved API access and the authorization workflow first.' });
   }

@@ -52,6 +52,36 @@ export default function LiveRampService({ profile, notify }) {
   const [savedCase, setSavedCase] = useState(loadSavedCase);
   const [caseInfo, setCaseInfo] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [account, setAccount] = useState(null);
+  const [authMode, setAuthMode] = useState('register');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (active) setAccount(data?.authenticated ? data : null); })
+      .catch(() => { if (active) setAccount(null); })
+      .finally(() => { if (active) setAuthReady(true); });
+    return () => { active = false; };
+  }, []);
+
+  async function submitAuth(event) {
+    event.preventDefault(); setAuthBusy(true); setError('');
+    try {
+      const response = await fetch(authMode === 'register' ? '/api/auth/register' : '/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: authEmail, password: authPassword }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || 'Could not authenticate.');
+      setAccount({ authenticated: true, email: data.email }); setAuthPassword('');
+      notify(authMode === 'register' ? 'Account created. You are signed in.' : 'Signed in successfully.');
+    } catch (err) { setError(err.message || 'Could not authenticate.'); }
+    finally { setAuthBusy(false); }
+  }
+
+  async function signOut() { try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {} setAccount(null); notify('You have signed out.'); }
 
   useEffect(() => {
     setForm(current => ({
@@ -194,7 +224,25 @@ export default function LiveRampService({ profile, notify }) {
         <a href="https://developers.liveramp.com/privacy-api/reference/create-privacyrequests-1" target="_blank" rel="noreferrer">API docs <ExternalLink size={12} /></a>
       </div>
 
-      <form className="service-form" onSubmit={submitRequest}>
+      <div className="service-account-bar">
+        {authReady && account ? (
+          <div className="service-setup-notice"><ShieldCheck size={17} /><div><strong>Signed in as {account.email}</strong><p>Only signed-in accounts can create new provider requests. Keep your case access key private.</p></div><button type="button" className="button button-outline" onClick={signOut}>Sign out</button></div>
+        ) : (
+          <div className="service-setup-notice"><LockKeyhole size={17} /><div>
+            <strong>{!authReady ? "Checking account session…" : authMode === "register" ? "Create an account to submit a request" : "Sign in to submit a request"}</strong>
+            <p>Passwords are hashed and sessions are HTTP-only. Account recovery and email verification are not available in this early version.</p>
+            {authReady && <form className="service-form service-auth-form" onSubmit={submitAuth}>
+              <div className="service-form-grid">
+                <label>Email address<input type="email" autoComplete="email" required maxLength={254} value={authEmail} onChange={e => setAuthEmail(e.target.value)} /></label>
+                <label>Password<input type="password" autoComplete={authMode === "register" ? "new-password" : "current-password"} required minLength={authMode === "register" ? 12 : 1} maxLength={256} value={authPassword} onChange={e => setAuthPassword(e.target.value)} placeholder={authMode === "register" ? "At least 12 characters" : "Your password"} /></label>
+              </div>
+              <div className="service-form-actions"><button className="button button-dark" type="submit" disabled={authBusy}>{authBusy ? "Please wait…" : authMode === "register" ? "Create account" : "Sign in"}</button><button className="button button-outline" type="button" onClick={() => { setAuthMode(mode => mode === "register" ? "login" : "register"); setError(""); }}>{authMode === "register" ? "I already have an account" : "Create an account"}</button></div>
+            </form>}
+          </div></div>
+        )}
+      </div>
+
+      {authReady && account && <form className="service-form" onSubmit={submitRequest}>
         <div className="service-form-grid">
           <label>Full legal name
             <input required minLength={3} autoComplete="name" value={form.fullName} onChange={e => setForm({ ...form, fullName: e.target.value })} placeholder="First and last name" />
@@ -242,7 +290,7 @@ export default function LiveRampService({ profile, notify }) {
           <button className="button button-dark" type="submit" disabled={!canSubmit}>{busy ? 'Submitting…' : 'Authorize & submit request'} <ExternalLink size={14} /></button>
         </div>
         {!eligibleByForm && <p className="service-eligibility-note">This LiveRamp connector currently accepts U.S.-resident requests only. A state is required for deletion requests, but choosing one does not guarantee legal eligibility or removal.</p>}
-      </form>
+      </form>}
 
       {caseInfo && savedCase && (
         <div className="service-case">
