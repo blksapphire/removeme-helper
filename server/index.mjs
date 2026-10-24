@@ -125,7 +125,8 @@ function publicCase(record) {
 
 function integrationEnabled() {
   return Boolean(
-    process.env.LIVERAMP_API_TOKEN &&
+    process.env.LIVERAMP_ACCOUNT_ID &&
+    process.env.LIVERAMP_SECRET_KEY &&
     process.env.LIVERAMP_ORG_ID &&
     process.env.LIVERAMP_AGENT_AUTHORIZED === 'true' &&
     encryptionKeyIsValid()
@@ -194,7 +195,8 @@ app.post('/api/liveramp/requests', rateLimitCreate, async (req, res) => {
 
   try {
     const providerResult = await createLiveRampRequest({
-      token: process.env.LIVERAMP_API_TOKEN,
+      accountId: process.env.LIVERAMP_ACCOUNT_ID,
+      secretKey: process.env.LIVERAMP_SECRET_KEY,
       orgId: process.env.LIVERAMP_ORG_ID,
       payload: validated.payload
     });
