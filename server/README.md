@@ -47,7 +47,7 @@ LiveRamp's official documentation says the Privacy API is available only to U.S.
 
 **Do not expose this prototype as a public service.** The request-creation endpoint has no authenticated RemoveMe Helper account or per-user authorization yet. Keep it private and leave `LIVERAMP_AGENT_AUTHORIZED=false` until account authentication, per-request authority checks, abuse controls, and legal/contractual review are completed.
 
-Set `LIVERAMP_API_TOKEN` and `LIVERAMP_ORG_ID` only with legitimate credentials. Do not set `LIVERAMP_AGENT_AUTHORIZED=true` until the organization has the required API permissions and the current authorized-agent obligations and consent wording have been reviewed. The application refuses to submit while any guard is missing. Without these values, the interface remains visible but submission is disabled.
+Set `LIVERAMP_ACCOUNT_ID`, `LIVERAMP_SECRET_KEY`, and `LIVERAMP_ORG_ID` only with legitimate credentials. The server exchanges these credentials for short-lived access tokens and refreshes them before expiry; keep them server-side and never expose them in frontend environment variables. Do not set `LIVERAMP_AGENT_AUTHORIZED=true` until the organization has the required API permissions and the current authorized-agent obligations and consent wording have been reviewed. The application refuses to submit while any guard is missing. Without these values, the interface remains visible but submission is disabled.
 
 Provider statuses map to `submitted`, `processing`, `completed`, and `failed`. These are provider-reported states. “Submitted” does not mean the personal information has already been removed from every website.
 
