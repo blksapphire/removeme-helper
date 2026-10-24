@@ -62,7 +62,7 @@ Vite proxies `/api` to port 8787. For production, `docker compose up --build -d`
 
 - LiveRamp's official documentation says its Privacy API is available only to U.S. customers. Use it only after the organization has obtained legitimate API access from LiveRamp. See the [official API overview](https://developers.liveramp.com/privacy-api/reference/about-the-privacy-api).
 - An API acknowledgement means **submitted**, not **removed**. The UI reports provider status and does not claim independent removal verification.
-- LiveRamp is disabled unless the API token, organization ID, encryption key, and explicit agent-authorization configuration are present.
+- LiveRamp is disabled unless the service-account credentials, organization ID, encryption key, and explicit agent-authorization configuration are present.
 - **Not ready for public deployment:** the request-creation endpoint does not yet require an authenticated RemoveMe Helper account. Keep the API private and `LIVERAMP_AGENT_AUTHORIZED=false` until account authentication, per-request authority checks, rate limiting/abuse controls, and a legal/contractual review are in place.
 - The app sends name and email directly to LiveRamp for the requested action. Our database does not store those fields; it stores the provider reference, status events, and an encrypted authorization receipt.
 - The authorization checkbox and typed signature are versioned and timestamped. Review the consent wording, applicable privacy rules, LiveRamp API access terms, and authorized-agent obligations before enabling this integration for public users.
