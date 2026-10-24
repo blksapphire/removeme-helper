@@ -6,7 +6,11 @@ This server adds a first-party request workflow and one provider connector. It i
 
 - `GET /api/health` — health and persistence status.
 - `GET /api/service-status` — reports whether the LiveRamp connector is configured, without exposing credentials.
-- `POST /api/liveramp/requests` — validates explicit consent and a typed signature, then submits a request to the official LiveRamp Privacy API.
+- `POST /api/auth/register` — creates an account with a scrypt-hashed password and starts an HTTP-only session. Passwords must be at least 12 characters.
+- `POST /api/auth/login` — verifies credentials and starts a session.
+- `GET /api/auth/me` — reports the current session account.
+- `POST /api/auth/logout` — revokes the current session.
+- `POST /api/liveramp/requests` — requires a signed-in account, explicit consent, and a typed signature before submitting to the official LiveRamp Privacy API.
 - `GET /api/removal-cases/:id` — checks current provider status when possible. Requires `Authorization: Bearer <accessToken>`.
 - `DELETE /api/removal-cases/:id` — deletes the local case and encrypted authorization receipt. This cannot cancel a request already submitted upstream.
 
@@ -45,7 +49,7 @@ docker compose logs -f
 
 LiveRamp's official documentation says the Privacy API is available only to U.S. customers. Obtain API access through a LiveRamp representative; possession of a token alone is not evidence that this product is approved for the intended agency workflow.
 
-**Do not expose this prototype as a public service.** The request-creation endpoint has no authenticated RemoveMe Helper account or per-user authorization yet. Keep it private and leave `LIVERAMP_AGENT_AUTHORIZED=false` until account authentication, per-request authority checks, abuse controls, and legal/contractual review are completed.
+**Do not expose this prototype as a public service.** New provider submissions now require a signed-in account. Passwords are stored as scrypt hashes; session tokens are stored as hashes and sent only in HTTP-only, SameSite cookies. Authentication attempts have basic in-memory per-IP limits. However, email verification, password recovery, account deletion, durable/distributed rate limiting, per-request authority checks, and legal/contractual review are not implemented. Keep it private and leave `LIVERAMP_AGENT_AUTHORIZED=false` until these gaps are addressed.
 
 Set `LIVERAMP_ACCOUNT_ID`, `LIVERAMP_SECRET_KEY`, and `LIVERAMP_ORG_ID` only with legitimate credentials. The server exchanges these credentials for short-lived access tokens and refreshes them before expiry; keep them server-side and never expose them in frontend environment variables. Do not set `LIVERAMP_AGENT_AUTHORIZED=true` until the organization has the required API permissions and the current authorized-agent obligations and consent wording have been reviewed. The application refuses to submit while any guard is missing. Without these values, the interface remains visible but submission is disabled.
 
