@@ -53,7 +53,7 @@ The application includes a server-side LiveRamp connector. It can submit opt-out
 1. Install Node.js 22 or newer.
 2. Copy `.env.example` to `.env`.
 3. Generate an encryption key with `openssl rand -hex 32` and set `DATA_ENCRYPTION_KEY` in `.env`.
-4. Set `LIVERAMP_API_TOKEN` and `LIVERAMP_ORG_ID` only after obtaining legitimate API access. Set `LIVERAMP_AGENT_AUTHORIZED=true` only after confirming the organization and authorized-agent workflow are approved for this use.
+4. Set `LIVERAMP_ACCOUNT_ID`, `LIVERAMP_SECRET_KEY`, and `LIVERAMP_ORG_ID` only after obtaining legitimate API access. The server obtains and refreshes short-lived access tokens automatically; never put account credentials in frontend variables. Set `LIVERAMP_AGENT_AUTHORIZED=true` only after confirming the organization and authorized-agent workflow are approved for this use.
 5. Run `npm install`, then `npm run dev:api` in one terminal and `npm run dev` in another.
 
 Vite proxies `/api` to port 8787. For production, `docker compose up --build -d` runs the built app and API on port 8787 with persistent SQLite storage.
@@ -62,7 +62,7 @@ Vite proxies `/api` to port 8787. For production, `docker compose up --build -d`
 
 - LiveRamp's official documentation says its Privacy API is available only to U.S. customers. Use it only after the organization has obtained legitimate API access from LiveRamp. See the [official API overview](https://developers.liveramp.com/privacy-api/reference/about-the-privacy-api).
 - An API acknowledgement means **submitted**, not **removed**. The UI reports provider status and does not claim independent removal verification.
-- LiveRamp is disabled unless the API token, organization ID, encryption key, and explicit agent-authorization configuration are present.
+- LiveRamp is disabled unless the service-account credentials, organization ID, encryption key, and explicit agent-authorization configuration are present.
 - **Not ready for public deployment:** the request-creation endpoint does not yet require an authenticated RemoveMe Helper account. Keep the API private and `LIVERAMP_AGENT_AUTHORIZED=false` until account authentication, per-request authority checks, rate limiting/abuse controls, and a legal/contractual review are in place.
 - The app sends name and email directly to LiveRamp for the requested action. Our database does not store those fields; it stores the provider reference, status events, and an encrypted authorization receipt.
 - The authorization checkbox and typed signature are versioned and timestamped. Review the consent wording, applicable privacy rules, LiveRamp API access terms, and authorized-agent obligations before enabling this integration for public users.

@@ -125,7 +125,8 @@ function publicCase(record) {
 
 function integrationEnabled() {
   return Boolean(
-    process.env.LIVERAMP_API_TOKEN &&
+    process.env.LIVERAMP_ACCOUNT_ID &&
+    process.env.LIVERAMP_SECRET_KEY &&
     process.env.LIVERAMP_ORG_ID &&
     process.env.LIVERAMP_AGENT_AUTHORIZED === 'true' &&
     encryptionKeyIsValid()
@@ -194,7 +195,8 @@ app.post('/api/liveramp/requests', rateLimitCreate, async (req, res) => {
 
   try {
     const providerResult = await createLiveRampRequest({
-      token: process.env.LIVERAMP_API_TOKEN,
+      accountId: process.env.LIVERAMP_ACCOUNT_ID,
+      secretKey: process.env.LIVERAMP_SECRET_KEY,
       orgId: process.env.LIVERAMP_ORG_ID,
       payload: validated.payload
     });
@@ -251,12 +253,13 @@ app.get('/api/removal-cases/:id', async (req, res) => {
   if (record.provider === 'liveramp' && record.provider_uuid && integrationEnabled()) {
     try {
       const remote = await getLiveRampRequest({
-        token: process.env.LIVERAMP_API_TOKEN,
+        accountId: process.env.LIVERAMP_ACCOUNT_ID,
+        secretKey: process.env.LIVERAMP_SECRET_KEY,
         orgId: process.env.LIVERAMP_ORG_ID,
         uuid: record.provider_uuid
       });
       const now = new Date().toISOString();
-      const nextStatus = remote.status || record.status;
+      const nextStatus = remote.status && remote.status !== 'unknown' ? remote.status : record.status;
       if (nextStatus !== record.status) {
         addEvent(record.id, nextStatus, 'LiveRamp status changed to ' + nextStatus, now);
       }

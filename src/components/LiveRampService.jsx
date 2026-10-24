@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle2, Clock3, Copy, ExternalLink, LockKeyhole, RefreshCw, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock3, Copy, ExternalLink, LockKeyhole, RefreshCw, ShieldCheck, Trash2 } from 'lucide-react';
 
 const SESSION_KEY = 'removeme-liveramp-case-v1';
 const STATES = [
@@ -136,6 +136,27 @@ export default function LiveRampService({ profile, notify }) {
     }
   }
 
+  async function deleteCase() {
+    if (!savedCase?.caseId || !savedCase?.accessToken) return;
+    if (!window.confirm('Delete this case and its stored authorization receipt from RemoveMe Helper? This cannot cancel a request already sent to LiveRamp.')) return;
+    setError('');
+    try {
+      const response = await fetch(`/api/removal-cases/${encodeURIComponent(savedCase.caseId)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${savedCase.accessToken}` },
+        cache: 'no-store'
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || 'Could not delete this case.');
+      sessionStorage.removeItem(SESSION_KEY);
+      setSavedCase(null);
+      setCaseInfo(null);
+      notify('The local case and stored authorization receipt were deleted.');
+    } catch (err) {
+      setError(err.message || 'Could not delete this case.');
+    }
+  }
+
   const deletionNeedsState = form.requestType === 'DELETION';
   const eligibleByForm = form.country === 'United States' && (!deletionNeedsState || STATES.some(([code]) => code === form.state));
   const canSubmit = availability.configured && eligibleByForm && form.fullName.trim().split(/\s+/).length >= 2 &&
@@ -198,7 +219,7 @@ export default function LiveRampService({ profile, notify }) {
                 <option value="">Choose state</option>
                 {STATES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
               </select>
-              <small>Deletion is only enabled for states listed in LiveRamp's current privacy guidance.</small>
+              <small>The state is included in the provider request; choosing one does not establish legal eligibility.</small>
             </label>
           )}
           <label>Type your full name to sign
@@ -234,6 +255,7 @@ export default function LiveRampService({ profile, notify }) {
           <div className="service-form-actions">
             <button type="button" className="button button-outline" onClick={() => refreshCase()} disabled={refreshing}><RefreshCw size={14} /> {refreshing ? 'Refreshing…' : 'Refresh status'}</button>
             <button type="button" className="button button-outline" onClick={copyRecoveryCode}><Copy size={14} /> Copy case access key</button>
+            <button type="button" className="button button-outline" onClick={deleteCase}><Trash2 size={14} /> Delete case</button>
           </div>
           {caseInfo.events?.length > 0 && <div className="service-event-list"><strong>Activity</strong>{caseInfo.events.slice(-4).reverse().map(event => <div className="service-event" key={event.id}><span className="service-event__dot" /><div><span>{event.label}</span><time>{new Date(event.createdAt).toLocaleString()}</time></div></div>)}</div>}
           <small className="service-privacy-note">Your case access key stays in this browser tab's session unless you copy it. “Submitted” is not proof that information has been removed; confirm the final provider status and recheck listings separately.</small>
